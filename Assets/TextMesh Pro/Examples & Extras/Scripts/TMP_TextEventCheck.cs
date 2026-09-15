@@ -46,7 +46,7 @@ namespace TMPro.Examples
 
         void OnSpriteSelection(char c, int index)
         {
-            Debug.Log("Sprite [" + c + "] at Index: " + index + " has been selected.");
+            Debug.Log("sprite [" + c + "] at Index: " + index + " has been selected.");
         }
 
         void OnWordSelection(string word, int firstCharacterIndex, int length)

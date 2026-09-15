@@ -163,6 +163,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CharacterTile
   TileID: 0
   parent: {fileID: 0}
+  im: {fileID: 4052074779515076489}
 --- !u!1 &5514248063147403717
 GameObject:
   m_ObjectHideFlags: 0

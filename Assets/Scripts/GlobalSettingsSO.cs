@@ -44,6 +44,12 @@ public class GlobalSettingsSO : ScriptableObject
     }
 
     public bool inTheSettings;
+    public Sprite[] charSelSprites;
+    public GameObject[] character;
+    public Material[] skin;
+
+    public short char1Id = -1;
+    public short char2Id = -1;
     public void GameExit()
     {
         Debug.Log("Quit The game");
