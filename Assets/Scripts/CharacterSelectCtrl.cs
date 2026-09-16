@@ -4,14 +4,18 @@ using UnityEngine.UI;
 public class CharacterSelectCtrl : MonoBehaviour
 {
     public CharacterTile[] tiles;
+    public Slider Slider1;
+    public Slider Slider2;
+    public GameObject ConfirmB;
+    public Transform plat1;
+    public Transform plat2;
+    [Header("AutoInitializable")]
+    public CharacterPrefabCtrl char1Prefab;
+    public CharacterPrefabCtrl char2Prefab;
     public short char1Id = -1;
     public short char2Id = -1;
     public short char1Skin = -1;
     public short char2Skin = -1;
-    public short tempId;
-    public Slider Slider1;
-    public Slider Slider2;
-    public GameObject ConfirmB;
     [SerializeField]
     private byte m_progression = 0;
     public byte progression
@@ -19,7 +23,6 @@ public class CharacterSelectCtrl : MonoBehaviour
         get { return m_progression; }
         set
         {
-            ConfirmB.SetActive(false);
             Slider1.gameObject.SetActive(false);
             Slider2.gameObject.SetActive(false);
             switch (value)
@@ -27,45 +30,58 @@ public class CharacterSelectCtrl : MonoBehaviour
                 case 3:
                     {
                         Slider2.gameObject.SetActive(true);
-                        char2Skin = -1;
                         break;
                     }
                 case 2:
                     {
-                        char2Id = -1;
-                        char2Skin = -1;
+                        if (char2Prefab != null)
+                        {
+                            char2Skin = ChromaCorrection(true);
+                            Slider2.value = char2Skin;
+                            char2Prefab.mesh.material = (GlobalSettingsSO.GS.skin[char2Skin]);
+                        }
+                        else
+                            ConfirmB.gameObject.SetActive(false);
                         break;
                     }
                 case 1:
                     {
                         Slider1.gameObject.SetActive(true);
                         char2Id = -1;
-                        char1Skin = -1;
                         char2Skin = -1;
+                        if (char2Prefab != null)
+                            Destroy(char2Prefab.gameObject);
                         break;
                     }
                 case 0:
                     {
-                        char1Id = -1;
                         char2Id = -1;
-                        char1Skin = -1;
                         char2Skin = -1;
+                        if (char1Prefab != null)
+                        {
+                            char1Skin = ChromaCorrection(true);
+                            Slider1.value = char1Skin;
+                            char1Prefab.mesh.material = (GlobalSettingsSO.GS.skin[char1Skin]);
+                        }
+                        else
+                            ConfirmB.gameObject.SetActive(false);
                         break;
                     }
                 default:
                     {
                         Debug.Log("Here need to swap scenes to Game");
-                        GlobalSettingsSO.GS.currentScene = GlobalSettingsSO.CurrentScene.GAME;
+                        GlobalSettingsSO GS = GlobalSettingsSO.GS;
+                        GS.char1Id = char1Id;
+                        GS.char2Id = char2Id;
+                        GS.char1SkinId = char1Skin;
+                        GS.char2SkinId = char2Skin;
+                        GS.currentScene = GlobalSettingsSO.CurrentScene.GAME;
                         break;
                     }
             }
             m_progression = value;
         }
     }
-    public Transform plat1;
-    public Transform plat2;
-    public CharacterPrefabCtrl char1;
-    public CharacterPrefabCtrl char2;
     private void Start()
     {
         tiles[0].im.sprite = GlobalSettingsSO.GS.charSelSprites[0];
@@ -78,7 +94,9 @@ public class CharacterSelectCtrl : MonoBehaviour
         get { return char1Skin; }
         set {
             ConfirmB.SetActive(true);
-            char1.mesh.material = (GlobalSettingsSO.GS.skin[(int)Slider1.value]);
+            Slider1.value = char1Skin = ChromaCorrection(true, (short)Slider1.value);
+            char1Prefab.mesh.material = (GlobalSettingsSO.GS.skin[char1Skin]);
+
         }
     }
     public int skin2
@@ -87,42 +105,45 @@ public class CharacterSelectCtrl : MonoBehaviour
         set
         {
             ConfirmB.SetActive(true);
-            char2.mesh.material = (GlobalSettingsSO.GS.skin[(int)Slider2.value]);
+            Slider2.value = char2Skin = ChromaCorrection(true, (short)Slider2.value);
+            char2Prefab.mesh.material = (GlobalSettingsSO.GS.skin[char2Skin]);
         }
     }
     public void PickCharacter(short id)
     {
-        tempId = id;
-        ConfirmB.SetActive(true);
-        if (char1Id == -1)
+        if (progression % 2 == 1)
         {
-            if (char1 != null)
-                Destroy(char1.gameObject);
-            char1 = Instantiate(GlobalSettingsSO.GS.character[id], plat1).GetComponent<CharacterPrefabCtrl>();
+            return;
+        }
+        if (progression < 2)
+        {
+            char1Id = id;
+            if (char1Id >= 0)
+            {
+                if (char1Prefab != null)
+                    Destroy(char1Prefab.gameObject);
+                char1Prefab = Instantiate(GlobalSettingsSO.GS.character[id], plat1).GetComponent<CharacterPrefabCtrl>();
+                Slider1.value = char1Skin = ChromaCorrection(true);
+                char1Prefab.mesh.material = (GlobalSettingsSO.GS.skin[char1Skin]);
+                ConfirmB.SetActive(true);
+            }
         }
         else
         {
-            if (char2Id == -1)
+            char2Id = id;
+            if (char2Id >= 0)
             {
-                if (char2 != null)
-                    Destroy(char2.gameObject);
-                char2 = Instantiate(GlobalSettingsSO.GS.character[id], plat2).GetComponent<CharacterPrefabCtrl>();
+                if (char2Prefab != null)
+                    Destroy(char2Prefab.gameObject);
+                char2Prefab = Instantiate(GlobalSettingsSO.GS.character[id], plat2).GetComponent<CharacterPrefabCtrl>();
+                Slider2.value = char2Skin = ChromaCorrection(true);
+                char2Prefab.mesh.material = (GlobalSettingsSO.GS.skin[char2Skin]);
+                ConfirmB.SetActive(true);
             }
         }
     }
     public void Confirm()
     {
-        if (char1Id == -1 && (char1 != null))
-        {
-            char1Id = tempId;
-        }
-        else
-        {
-            if (char2Id == -1 && (char2 != null))
-            {
-                char2Id = tempId;
-            }
-        }
         progression++;
     }
     public void GoBack()
@@ -134,5 +155,22 @@ public class CharacterSelectCtrl : MonoBehaviour
             Debug.Log("Here need to swap scenes to Main");
             GlobalSettingsSO.GS.currentScene = GlobalSettingsSO.CurrentScene.MAIN;
         }
+    }
+
+    public short ChromaCorrection(bool player1WasFirst,short test = 0)
+    {
+        if(player1WasFirst)
+        {
+            if (char1Id == char2Id & char1Skin == test)
+                return (short)((test + 1) % GlobalSettingsSO.GS.skin.Length);
+            return (test);
+        }
+        else
+        {
+            if (char1Id == char2Id & char2Skin == test)
+                return (short)((test + 1) % GlobalSettingsSO.GS.skin.Length);
+            return (test);
+        }
+
     }
 }

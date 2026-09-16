@@ -40,6 +40,11 @@ public class MainMenuCtrl : MonoBehaviour, ISettingsBacktracker
         }
         else
         {
+            if (quitPanel.isActiveAndEnabled)
+            {
+                quitPanel.B_CANCEL.Select();
+            }
+            else
             if (UIEvent.currentSelectedGameObject != quitButton.gameObject)
             {
                 quitButton.Select();
@@ -49,10 +54,6 @@ public class MainMenuCtrl : MonoBehaviour, ISettingsBacktracker
     public void QuitEnd(InputAction.CallbackContext obj)
     {
         GameExit();
-        //if (UIevent.currentSelectedGameObject == quitButton.gameObject)
-        //{
-        //    Invoke("GameExit", 0);
-        //}
     }
 
     private void QuitCanceled()
@@ -76,13 +77,14 @@ public class MainMenuCtrl : MonoBehaviour, ISettingsBacktracker
     public void GameStart()
     {
         Debug.Log("Here need to swap scenes to CharacterSelect");
-        GS.currentScene = GlobalSettingsSO.CurrentScene.CHAR_SEl;
+        GS.currentScene = GlobalSettingsSO.CurrentScene.CHAR_SEL;
     }
 
     public void GameExit()
     {
         MainPanel.SetActive(false);
         quitPanel.gameObject.SetActive(true);
+        quitPanel.B_CANCEL.Select();
     }
     public void SettingsOpen()
     {

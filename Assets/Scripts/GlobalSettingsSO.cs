@@ -25,7 +25,7 @@ public class GlobalSettingsSO : ScriptableObject
     public enum CurrentScene : byte
     {
         MAIN,
-        CHAR_SEl,
+        CHAR_SEL,
         GAME
     };
 
@@ -50,6 +50,9 @@ public class GlobalSettingsSO : ScriptableObject
 
     public short char1Id = -1;
     public short char2Id = -1;
+
+    public short char1SkinId = -1;
+    public short char2SkinId = -1;
     public void GameExit()
     {
         Debug.Log("Quit The game");
