@@ -77,7 +77,7 @@ public class ArenaController : MonoBehaviour
                 Progress1.current -= 20;
                 Progress1.getCurrentFill();
                 if (Progress1.current <= 0)
-                    Victory(true);
+                    Victory(false);
 
             }
             else
@@ -85,7 +85,7 @@ public class ArenaController : MonoBehaviour
                 Progress2.current -= 20;
                 Progress2.getCurrentFill();
                 if (Progress2.current <= 0)
-                    Victory(false);
+                    Victory(true);
             }
         }
     }

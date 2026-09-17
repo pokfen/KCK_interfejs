@@ -1,4 +1,3 @@
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -18,6 +17,10 @@ public class GlobalSettingsSO : ScriptableObject
     {
         if (GS == this)
             GS = null;
+    }
+    public void makeSureItsGS()
+    {
+        GS = this;
     }
     #endregion
     #region SceneManagment
@@ -57,7 +60,7 @@ public class GlobalSettingsSO : ScriptableObject
     {
         Debug.Log("Quit The game");
 #if UNITY_EDITOR
-        EditorApplication.ExitPlaymode();
+        UnityEditor.EditorApplication.ExitPlaymode();
 #else
         Application.Quit(); // original code to quit Unity player
 #endif

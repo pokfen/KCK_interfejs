@@ -1,4 +1,3 @@
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
@@ -6,27 +5,20 @@ using UnityEngine.UI;
 
 public class MainMenuCtrl : MonoBehaviour, ISettingsBacktracker
 {
-    GlobalSettingsSO GS;
+    public GlobalSettingsSO GS;
     [SerializeField] SettingsCtrl settings;
     [SerializeField] GameObject MainPanel;
     [SerializeField] Quitter quitPanel;
-    [SerializeField] Button gameStartButton;
-    [SerializeField] Button settingsButton;
-    [SerializeField] Button quitButton;
+    [SerializeField] Button B_gameStartButton;
+    [SerializeField] Button B_settingsButton;
+    [SerializeField] Button B_quitButton;
     [Header("AutoFilled")]
     [SerializeField] PlayerInput input;
     [SerializeField] EventSystem UIEvent;
-    private void Awake()
-    {
-        input = GetComponent<PlayerInput>();
-        InputAction back = input.actions.FindAction("Cancel");
-        back.performed += QuitRefocus;
-        back.canceled += QuitEnd;
-    }
     private void OnDestroy()
     {
         InputAction back = input.actions.FindAction("Cancel");
-        back.performed -= QuitRefocus;
+        back.started -= QuitRefocus;
         back.canceled -= QuitEnd;
     }
     private void QuitRefocus(InputAction.CallbackContext obj)
@@ -40,39 +32,51 @@ public class MainMenuCtrl : MonoBehaviour, ISettingsBacktracker
         }
         else
         {
-            if (quitPanel.isActiveAndEnabled)
+            if (quitPanel.gameObject.activeSelf)
             {
                 quitPanel.B_CANCEL.Select();
             }
             else
-            if (UIEvent.currentSelectedGameObject != quitButton.gameObject)
+            if (UIEvent.currentSelectedGameObject != B_quitButton.gameObject)
             {
-                quitButton.Select();
+                B_quitButton.Select();
             }
         }
     }
     public void QuitEnd(InputAction.CallbackContext obj)
     {
-        GameExit();
+        if (!GS.inTheSettings)
+        {
+            if (quitPanel.gameObject.activeSelf)
+            {
+                quitPanel.B_CANCEL.Select();
+            }
+            else
+            {
+                GameExit();
+            }
+        }
     }
 
     private void QuitCanceled()
     {
         MainPanel.SetActive(true);
+        B_quitButton.Select();
     }
 
     private void Start()
     {
-        if ((GS = GlobalSettingsSO.GS) == null)
-        {
-            Destroy(gameObject);
-        }
+        GS.makeSureItsGS();
         UIEvent = GameObject.FindFirstObjectByType<EventSystem>();
         GS.currentScene = GlobalSettingsSO.CurrentScene.MAIN;
         quitPanel.handler = QuitCanceled;
         SettingsClose();
         settings.backtracker = this;
-        gameStartButton.Select();
+        input = GetComponent<PlayerInput>();
+        InputAction back = input.actions.FindAction("Cancel");
+        back.started += QuitRefocus;
+        back.canceled += QuitEnd;
+        B_gameStartButton.Select();
     }
     public void GameStart()
     {
@@ -90,6 +94,7 @@ public class MainMenuCtrl : MonoBehaviour, ISettingsBacktracker
     {
         GS.inTheSettings = true;
         settings.gameObject.SetActive(true);
+        settings.B_Back.Select();
         MainPanel.SetActive(false);
     }
     public void SettingsClose()
